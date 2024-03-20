@@ -14,7 +14,7 @@ class Consumer:
         self.chunk_size = chunk_size
         self.chunk_timeout = 5  # Time in seconds to wait for filling the chunk
 
-    def messages_chunk(self):
+    def messages_chunk(self) -> list[dict]:
         messages = []
         start_time = time.time()
 
