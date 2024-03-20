@@ -17,6 +17,11 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka:9092", "--list"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
     volumes:
       - kafka-data:/bitnami/kafka
 
@@ -24,7 +29,8 @@ services:
     build:
       context: ./data-generator
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     command: ["python", "main.py"]
 
 volumes:
