@@ -1,10 +1,12 @@
 import signal
 import sys
 from consumer import Consumer
+from producer import Producer
 from data_aggregator import DataAggregator
 from application_state_db import ApplicationStateDB
 
 consumer_topic = 'data'
+producer_topic = 'agg'
 kafka_server = 'localhost:9094'
 
 # Signal handler function
@@ -25,6 +27,7 @@ if __name__ == "__main__":
         topic=consumer_topic,
         last_message=state_db.fetch_last_message(consumer_topic)
     )
+    kafka_producer = Producer(topic=producer_topic, server=kafka_server)
 
     try:
         while True:
@@ -35,6 +38,7 @@ if __name__ == "__main__":
 
             for message in aggregator.aggregated_data():
                 print(message)
+                kafka_producer.send_message(message)
 
             state_db.add_message(consumer_topic, kafka_consumer.last_message)
     except Exception as e:
