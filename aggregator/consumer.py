@@ -1,5 +1,4 @@
-from kafka import KafkaConsumer, OffsetAndMetadata, TopicPartition
-import time
+from kafka import KafkaConsumer, OffsetAndMetadata
 import json
 
 class Consumer:
@@ -38,8 +37,7 @@ class Consumer:
         return [msg.value for msg in messages]
 
     def set_offset(self) -> None:
-        print('------------------')
-        print(self.last_message)
+        print(f'Consumer: Last message info - {self.last_message}')
         if self.last_message:
 
             # Check if there are assigned partitions that need offset adjustment before setting offset
@@ -47,7 +45,17 @@ class Consumer:
                 topic = self.last_message['topic']
                 partition = self.last_message['partition']
                 if topic_partition.topic == topic and topic_partition.partition == partition:
-                    self.consumer.seek(topic_partition, self.last_message['offset'] + 1)
+
+                    # Determine whether to set the offset from current app state or set to current
+                    # offset. This is usefull in case of multiple processes running, so that an old
+                    # offset (which has already been consumed) is not set.
+                    current_offset = self.consumer.position(topic_partition) - 1 # We subtract 1 because it returns the offset of the next record that will be fetched
+
+                    if current_offset > self.last_message['offset']:
+                        self.consumer.commit({topic_partition: OffsetAndMetadata(current_offset + 1, None)})
+                    else:
+                        self.consumer.commit({topic_partition: OffsetAndMetadata(self.last_message['offset'] + 1, None)})
+                    break
 
     def close(self) -> None:
         self.consumer.close()
