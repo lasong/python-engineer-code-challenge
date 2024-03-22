@@ -31,6 +31,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+    environment:
+      - NUM_PROCESSES=3
     command: ['python', 'main.py']
 
 volumes:

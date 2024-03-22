@@ -33,7 +33,6 @@ class Consumer:
                 'offset': last_message.offset
             }
 
-
         return [msg.value for msg in messages]
 
     def set_offset(self) -> None:
