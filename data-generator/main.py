@@ -12,13 +12,6 @@ file = 'online_retail_II.csv'
 processes = []
 num_processes = int(os.getenv('NUM_PROCESSES')) if os.getenv('NUM_PROCESSES') else 2
 
-# Signal handler function
-def signal_handler(signal_received, frame):
-    print('Signal received, shutting down gracefully.')
-    for proc in processes:
-        proc.join()
-    sys.exit(0)
-
 def produce_messages(process_id, topic, server):
     # Initialize Kafka Producer Client
     producer = KafkaProducer(
