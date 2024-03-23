@@ -10,7 +10,7 @@ import sys
 
 file = 'online_retail_II.csv'
 processes = []
-num_processes = int(os.getenv('NUM_PROCESSES')) if os.getenv('NUM_PROCESSES') else 2
+num_processes = int(os.getenv('NUM_PROCESSES')) if os.getenv('NUM_PROCESSES') else 1
 
 def produce_messages(process_id, topic, server):
     # Initialize Kafka Producer Client

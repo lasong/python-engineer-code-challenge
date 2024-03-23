@@ -7,6 +7,7 @@ class Consumer:
         self.chunk_size = 50
         self.chunk_timeout = 5000 # in miliseconds
         self.last_message = last_message
+        self.should_commit = True
 
         self.consumer = KafkaConsumer(
             group_id='data-aggregator',
@@ -32,20 +33,24 @@ class Consumer:
                 'partition': last_message.partition,
                 'offset': last_message.offset
             }
+            self.should_commit = True
+        else:
+            self.should_commit = False # Do not re-commit offset if no messages were gotten
 
         return [msg.value for msg in messages]
 
     def set_offset(self) -> None:
-        print(f'Consumer: Last message info - {self.last_message}')
-        if self.last_message:
+        if self.should_commit:
+            if self.last_message:
 
-            # Check if there are assigned partitions that need offset adjustment before setting offset
-            for topic_partition in self.consumer.assignment():
-                topic = self.last_message['topic']
-                partition = self.last_message['partition']
-                if topic_partition.topic == topic and topic_partition.partition == partition:
-                    self.consumer.commit({topic_partition: OffsetAndMetadata(self.last_message['offset'] + 1, None)})
-                    break
+                # Check if there are assigned partitions that need offset adjustment before setting offset
+                for topic_partition in self.consumer.assignment():
+                    topic = self.last_message['topic']
+                    partition = self.last_message['partition']
+                    if topic_partition.topic == topic and topic_partition.partition == partition:
+                        print(f'Consumer: Last message info to commit - {self.last_message}')
+                        self.consumer.commit({topic_partition: OffsetAndMetadata(self.last_message['offset'] + 1, None)})
+                        break
 
     def close(self) -> None:
         self.consumer.close()
