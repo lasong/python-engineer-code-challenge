@@ -1,6 +1,6 @@
-# python-engineer-code-challenge-quix
+# python-engineer-code-challenge
 
-Python engineer tech challenge for Quix
+Python engineer tech challenge
 
 ## Local setup
 - Install docker and docker-compose (if you do not have it yet)
